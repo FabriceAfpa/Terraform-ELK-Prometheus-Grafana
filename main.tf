@@ -7,61 +7,31 @@ terraform {
   }
 }
 
-provider "scaleway" {}
-
-# bloc disque
-resource "scaleway_instance_volume" "data" {
-  count      = var.number_instance
-  size_in_gb = var.disk_size
-  type       = "b_ssd"
-}
-
-resource "scaleway_instance_ip" "public_ip" {
-  count = var.number_instance
-}
-
-# bloc instance
-resource "scaleway_instance_server" "Kube" {
-  count                 = var.number_instance
-  type                  = var.instance_type
-  image                 = "ubuntu_focal"
-  name                  = "--- [ Elephan - ${format("%02d", count.index + 1)} ] ---"
-  additional_volume_ids = [scaleway_instance_volume.data[count.index].id]
-  ip_id                 = scaleway_instance_ip.public_ip[count.index].id
-  security_group_id     = scaleway_instance_security_group.sg.id
-}
-
-resource "scaleway_instance_security_group" "sg" {
+resource "scaleway_instance_security_group" "scaleway" {
   inbound_default_policy  = "drop"
   outbound_default_policy = "accept"
 
+  # SSH
   inbound_rule {
     action = "accept"
-    port   = "22"
+    port   = 22
+  }
+
+  # Grafana
+  inbound_rule {
+    action = "accept"
+    port   = 3000
+  }
+
+  # Kibana
+  inbound_rule {
+    action = "accept"
+    port   = 5601
+  }
+
+  # Prometheus
+  inbound_rule {
+    action = "accept"
+    port   = 9090
   }
 }
-# output "ip_instance" {
-#   value = scaleway_instance_ip.public_ip[*].address
-# }
-
-resource "scaleway_instance_server" "Fabrice-01" {
-    count = 1
-    type  = var.instance_typeXL
-    image = "ubuntu_focal"
-    name  = "Fabrice-01}"
-
-    tags = ["Fabrice-01"]
-
-    ip_id = scaleway_instance_ip.public_ip[count.index].id
-  
-    additional_volume_ids = [scaleway_instance_volume.data[count.index].id]
-
-}
-
-# module "application"{
-#     source = "./modules/application"
-# }
-
-# module "elasticsearch"{
-#     source = "./modules/elasticsearch"
-# }

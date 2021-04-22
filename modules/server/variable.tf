@@ -1,11 +1,11 @@
-terraform {
-  required_providers {
-    scaleway = {
-      source  = "scaleway/scaleway"
-      version = "2.0.0"
-    }
-  }
-}
+# terraform {
+#   required_providers {
+#     scaleway = {
+#       source  = "scaleway/scaleway"
+#       version = "2.0.0"
+#     }
+#   }
+# }
 
 variable "disk_size" {
   type = number
@@ -28,8 +28,4 @@ variable "instance_count" {
 
 output "ip_instance" {
    value = scaleway_instance_ip.public_ip[*].address
-}
-
-module "server"{
-  source = "../modules"
 }
